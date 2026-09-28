@@ -124,8 +124,11 @@ body:has(.video-hero) .video-hero { height:100dvh; min-height:360px; }
  .page-card:hover img,.image-stream figure:hover img,.film-card:hover .film-thumb img,.films-feature-media:hover img{transform:scale(1.025);filter:brightness(1.04)}
  @keyframes jaw-page-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 }
+@media(max-width:899px){
+ /* Le film d’accueil reste dans son cadrage éditorial, sans recadrage vertical sur téléphone. */
+ body:has(.video-hero) .video-hero{height:auto;min-height:0;aspect-ratio:16/9}
+}
 @media(max-width:599px){
- body:has(.video-hero) .video-hero{height:100dvh;min-height:100dvh}
  body>header nav{padding-top:86px}
  body>header nav a{min-height:64px;font-size:15px}
  .contact-page--simple{min-height:calc(100svh - 128px);padding:30px var(--page-gutter)}
