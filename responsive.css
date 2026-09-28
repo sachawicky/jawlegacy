@@ -56,16 +56,16 @@ body:has(.contact-page)>header,body:has(.contact-page)>footer { flex-shrink:0; }
  body>header .menu-toggle { display:flex; position:static; margin-left:auto; width:46px; height:46px; padding:0; border:0; background:transparent; color:inherit; cursor:pointer; flex-direction:column; justify-content:center; align-items:center; gap:7px; }
  .menu-toggle i { display:block; width:24px; height:1.5px; margin:0; background:currentColor; transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .2s linear; }
  .menu-toggle i:last-child { opacity:1; }
- body>header nav { display:block; position:fixed; top:64px; left:0; right:0; width:auto; height:auto; max-height:calc(100dvh - 64px); margin:0; padding:6px var(--page-gutter) 18px; background:#000; border-top:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); overflow-y:auto; overscroll-behavior:contain; opacity:0; visibility:hidden; transform:translateY(-8px); transition:opacity .22s ease,transform .22s cubic-bezier(.4,0,.2,1),visibility 0s linear .22s; z-index:190; }
- body:has(.video-hero)>header nav { top:64px; }
+ body>header nav { display:block; position:fixed; inset:0; width:100%; height:100dvh; max-height:none; margin:0; padding:94px var(--page-gutter) 30px; background:#000; border:0; overflow-y:auto; overscroll-behavior:contain; opacity:0; visibility:hidden; transform:translateY(-12px); transition:opacity .24s ease,transform .24s cubic-bezier(.4,0,.2,1),visibility 0s linear .24s; z-index:190; }
+ body:has(.video-hero)>header nav { top:0; }
  body>header nav.is-open { display:block; opacity:1; visibility:visible; transform:none; transition:opacity .22s ease,transform .22s cubic-bezier(.4,0,.2,1),visibility 0s; }
- body>header nav a { display:flex; align-items:center; min-height:56px; padding:0 2px; border-bottom:1px solid rgba(255,255,255,.09); font-size:15px; font-weight:400; letter-spacing:.14em; }
+ body>header nav a { display:flex; align-items:center; min-height:clamp(58px,9dvh,76px); padding:0 2px; border-bottom:1px solid rgba(255,255,255,.09); font-size:16px; font-weight:400; letter-spacing:.14em; }
  body>header nav a:last-child { border-bottom:0; }
  body>header nav a.is-current { color:#fff; }
  body>header nav a.is-current::before { content:""; width:14px; height:1px; margin-right:14px; background:currentColor; flex:none; opacity:.9; }
  body.nav-open { overflow:hidden; }
  html:has(body.nav-open) { overflow:hidden; }
- .nav-scrim { position:fixed; inset:64px 0 0; background:rgba(0,0,0,.6); opacity:0; visibility:hidden; transition:opacity .22s ease,visibility 0s linear .22s; z-index:180; }
+ .nav-scrim { display:none; }
  .nav-scrim.is-open { opacity:1; visibility:visible; transition:opacity .22s ease,visibility 0s; }
  .menu-toggle[aria-expanded="true"] i:first-child { transform:translateY(4.25px) rotate(45deg); }
  .menu-toggle[aria-expanded="true"] i:last-child { transform:translateY(-4.25px) rotate(-45deg); }
@@ -104,6 +104,25 @@ body:has(.video-hero) .video-hero { height:100svh; min-height:360px; }
 @media(max-width:1099px) {
  .video-caption { left:var(--page-gutter); bottom:28px; font-size:12px; }
  .sound-toggle { right:var(--page-gutter); font-size:12px; }
+}
+/* Contact sans formulaire : le message reste précisément au centre de la fenêtre. */
+.contact-page--simple{display:grid;place-items:center;min-height:calc(100svh - 150px);padding-block:32px}
+.contact-centered{width:min(100%,820px)}
+.contact-page--simple .contact-details{margin:0 0 42px}
+.contact-page--simple .contact-intro{margin:0;max-width:590px}
+
+/* Animation discrète, sans mouvement imposé aux utilisateurs qui le désactivent. */
+@media(prefers-reduced-motion:no-preference){
+ main{animation:jaw-page-in .42s cubic-bezier(.2,.65,.3,1) both}
+ .page-card img,.image-stream img,.film-thumb img,.films-feature-media img{transition:transform .45s cubic-bezier(.2,.65,.3,1),filter .45s ease}
+ .page-card:hover img,.image-stream figure:hover img,.film-card:hover .film-thumb img,.films-feature-media:hover img{transform:scale(1.025);filter:brightness(1.04)}
+ @keyframes jaw-page-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+@media(max-width:599px){
+ body>header nav{padding-top:86px}
+ body>header nav a{min-height:64px;font-size:15px}
+ .contact-page--simple{min-height:calc(100svh - 128px);padding:30px var(--page-gutter)}
+ .contact-page--simple .contact-details{margin-bottom:34px}
 }
 @media(prefers-reduced-motion:reduce) {
  html { scroll-behavior:auto; }

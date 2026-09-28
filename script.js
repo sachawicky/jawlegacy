@@ -1,5 +1,14 @@
+if(!document.querySelector('link[rel="icon"]')){
+  const icon=document.createElement('link');
+  icon.rel='icon'; icon.type='image/svg+xml'; icon.href='assets/favicon/favicon.svg';
+  document.head.append(icon);
+}
+document.querySelectorAll('link[href*="responsive.css"],link[href*="films.css"],link[href*="styles.css"]').forEach(link=>{
+  link.href=link.href.replace('?v=29','?v=30');
+});
+
 const nav=document.querySelector('nav');
-if(nav){const current=location.pathname.split('/').pop()||'index.html';const items=[['wicky.html','WICKY'],['films.html','FILMS'],['dessins.html','DESSINS'],['archives.html','ARCHIVES'],['memoire.html','MÉMOIRE'],['contact.html','CONTACT']];nav.innerHTML=items.map(([href,label])=>`<a href="${href}"${current===href?' class="is-current" aria-current="page"':''}>${label}</a>`).join('');}
+if(nav){const current=location.pathname.split('/').pop()||'index.html';const items=[['wicky.html','WICKY'],['films.html','FILMS'],['dessins.html','DESIGNS'],['archives.html','ARCHIVES'],['memoire.html','MÉMOIRE'],['contact.html','CONTACT']];nav.innerHTML=items.map(([href,label])=>`<a href="${href}"${current===href?' class="is-current" aria-current="page"':''}>${label}</a>`).join('');}
 
 const menuToggle=document.querySelector('.menu-toggle');
 if(menuToggle && nav){
@@ -24,23 +33,28 @@ if(heroFrame){
     {id:'FJ34NkTzWgs',seconds:10},{id:'oiwXx7m-r5c',seconds:10},{id:'bB0YHqT3JIE',seconds:10},
     {id:'n5odygeaZ-U',seconds:10},{id:'bWrNcEATXCM',seconds:10},{id:'jLLElORRRTE',seconds:10}
   ];
-  let catalogue=[],queue=[],currentFilm,timer,isMuted=true;
+  // Une sélection courte dont les vidéos ont été retenues pour l'intégration.
+  // Éviter le catalogue complet empêche qu'une vidéo indisponible interrompe le carrousel.
+  const approvedVideoIds=new Set(['O_INnmKTBew','ehNCiCu6S78','MaohoeduKPQ','bWrNcEATXCM','_DiKVE5EO6s','2UMR5f91wj8']);
+  const startsMutedOnMobile=matchMedia('(pointer:coarse)').matches;
+  let catalogue=[],queue=[],currentFilm,timer,isMuted=startsMutedOnMobile;
   const hero=document.querySelector('.video-hero');
   const soundToggle=document.createElement('button');
-  soundToggle.className='sound-toggle is-muted';
+  soundToggle.className=`sound-toggle${isMuted?' is-muted':''}`;
   soundToggle.type='button';
-  soundToggle.textContent='SON';
-  soundToggle.setAttribute('aria-label','Activer le son');
+  soundToggle.textContent=isMuted?'SON':'MUET';
+  soundToggle.setAttribute('aria-label',isMuted?'Activer le son':'Couper le son');
   hero.append(soundToggle);
   const shuffle=items=>[...items].sort(()=>Math.random()-.5);
   const refillQueue=()=>{queue=shuffle(catalogue.filter(film=>!blockedVideoIds.has(film.id)&&film.id!==currentFilm?.id));};
   // Lecteur minimal : un iframe autonome, sans le SDK officiel ni son API JavaScript.
   // loop+playlist sur une seule vidéo évite l'écran de fin à chaque bascule.
-  const playerUrl=(id,muted)=>`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=${muted?1:0}&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&playsinline=1&modestbranding=1&loop=1&playlist=${id}`;
+  const playerUrl=(id,muted)=>`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=${muted?1:0}&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&playsinline=1&modestbranding=1&enablejsapi=1&loop=1&playlist=${id}`;
   function load(film){
     currentFilm=film;
     heroFrame.src=playerUrl(film.id,isMuted);
-    setTimeout(()=>hero.classList.add('is-playing'),900);
+    // Le visuel de couverture évite tout écran d'interface YouTube entre deux films.
+    heroFrame.onload=()=>hero.classList.add('is-playing');
     timer=setTimeout(playNext,Math.max(1,Math.min(film.seconds||10,10))*1000);
   }
   function playNext(){
@@ -58,13 +72,13 @@ if(heroFrame){
     soundToggle.textContent=isMuted?'SON':'MUET';
     soundToggle.classList.toggle('is-muted',isMuted);
     soundToggle.setAttribute('aria-label',isMuted?'Activer le son':'Couper le son');
-    // Sans le SDK on ne peut pas piloter le volume : on recharge la source avec le nouvel état.
-    if(currentFilm)load(currentFilm);
+    // Le lecteur reste en cours : aucune source n'est rechargée, notamment sur mobile.
+    heroFrame.contentWindow?.postMessage(JSON.stringify({event:'command',func:isMuted?'mute':'unMute',args:[]}),'*');
   });
   // Le catalogue est lu dans le HTML déjà présent, aucun script externe n'est requis.
   fetch('films.html').then(response=>response.ok?response.text():Promise.reject()).then(markup=>{
     const page=new DOMParser().parseFromString(markup,'text/html'),seen=new Set();
-    catalogue=[...page.querySelectorAll('[data-video]')].map(card=>({id:card.dataset.video,seconds:durationInSeconds(card.querySelector('.film-dur')?.textContent)})).filter(film=>film.id&&!seen.has(film.id)&&seen.add(film.id)&&!blockedVideoIds.has(film.id));
+    catalogue=[...page.querySelectorAll('[data-video]')].map(card=>({id:card.dataset.video,seconds:durationInSeconds(card.querySelector('.film-dur')?.textContent)})).filter(film=>film.id&&approvedVideoIds.has(film.id)&&!seen.has(film.id)&&seen.add(film.id)&&!blockedVideoIds.has(film.id));
     if(!catalogue.length)catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));
     refillQueue();playNext();
   }).catch(()=>{catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));refillQueue();playNext();});
@@ -236,42 +250,20 @@ document.querySelectorAll('.image-stream figure').forEach((figure,index)=>{
   if(caption)caption.textContent=title;
 });
 
-// Formulaire de contact : envoi sans quitter la page, avec repli mailto si l'hébergement n'accepte pas le POST.
-const contactForm=document.querySelector('.contact-form');
-if(contactForm){
-  const status=contactForm.querySelector('.form-status');
-  const send=message=>{
-    if(!status)return;
-    status.textContent=message;
-    status.className='form-status is-'+(/^Message envoyé/.test(message)?'ok':'error');
-  };
-  contactForm.addEventListener('submit',event=>{
-    event.preventDefault();
-    if(!contactForm.checkValidity()){
-      contactForm.reportValidity();
-      return;
-    }
-    if(contactForm.elements['bot-field'].value)return;
-    const data=new FormData(contactForm);
-    send('Envoi en cours…');
-    fetch(contactForm.getAttribute('action')||location.pathname,{
-      method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:new URLSearchParams(data).toString()
-    }).then(response=>{
-      if(!response.ok)throw new Error('HTTP '+response.status);
-      contactForm.reset();
-      send('Message envoyé. Nous vous répondrons à l’adresse indiquée.');
-    }).catch(()=>{
-      // L'hébergeur refuse le POST (site 100 % statique) : on ne perd pas le message, on ouvre le client mail.
-      const first=contactForm.elements['first-name'].value.trim();
-      const last=contactForm.elements['last-name'].value.trim();
-      const email=contactForm.elements['email'].value.trim();
-      const message=contactForm.elements['message'].value.trim();
-      const body=`${message}\n\n—\n${first} ${last}\n${email}`;
-      const mailto=`mailto:contact@jawlegacy.fr?subject=${encodeURIComponent('Message depuis jawlegacy.fr')}&body=${encodeURIComponent(body)}`;
-      location.href=mailto;
-      send('Votre logiciel de messagerie doit s’ouvrir pour finaliser l’envoi.');
+const filmSearch=document.querySelector('[data-film-search]');
+if(filmSearch){
+  const publicities=filmSearch.closest('.films-group');
+  const cards=[...(publicities?.querySelectorAll('.film-card')||[])];
+  const empty=publicities?.querySelector('.films-empty');
+  const normalize=value=>value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  filmSearch.addEventListener('input',()=>{
+    const query=normalize(filmSearch.value.trim());
+    let matches=0;
+    cards.forEach(card=>{
+      const match=!query||normalize(card.dataset.title||card.textContent).includes(query);
+      card.hidden=!match;
+      matches+=match?1:0;
     });
+    if(empty)empty.hidden=matches!==0;
   });
 }
