@@ -120,9 +120,6 @@ body:has(.video-hero) .video-hero { height:100dvh; min-height:360px; }
 .contact-page--simple .contact-intro{text-align:center}
 }
 
-.contact-page--simple .contact-details{margin:0}
-.contact-page--simple .contact-details>div:only-child{grid-column:1/-1;justify-self:center;text-align:center}
-
 /* Animation discrète, sans mouvement imposé aux utilisateurs qui le désactivent. */
 @media(prefers-reduced-motion:no-preference){
  main{animation:jaw-page-in .42s cubic-bezier(.2,.65,.3,1) both}
