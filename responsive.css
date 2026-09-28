@@ -115,6 +115,9 @@ body:has(.video-hero) .video-hero { height:100dvh; min-height:360px; }
  body:has(.contact-page--simple){display:grid;grid-template-rows:93px minmax(0,1fr) 85px}
  .contact-page--simple{width:100%;max-width:none;min-height:0;margin:0;padding:32px var(--page-gutter);}
  .contact-centered{width:min(760px,100%);margin-inline:auto}
+ .contact-page--simple .contact-centered{display:flex;flex-direction:column;align-items:center;text-align:center}
+ .contact-page--simple .contact-details{width:100%;grid-template-columns:repeat(2,max-content);justify-content:center;gap:clamp(64px,9vw,140px);text-align:left}
+ .contact-page--simple .contact-intro{text-align:center}
 }
 
 /* Animation discrète, sans mouvement imposé aux utilisateurs qui le désactivent. */
