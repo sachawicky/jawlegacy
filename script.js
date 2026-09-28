@@ -23,66 +23,26 @@ if(menuToggle && nav){
   nav.addEventListener('click',event=>{if(event.target.closest('a'))closeMenu();});
 }
 
-const heroFrame=document.querySelector('.video-hero iframe');
-if(heroFrame){
-  // Ces identifiants ne sont jamais proposés : Toyota est déjà connu comme indisponible.
-  const knownBlocked=JSON.parse(localStorage.getItem('jaw-blocked-youtube-videos')||'[]');
-  const blockedVideoIds=new Set(['owvNpe11KoQ',...knownBlocked]);
-  const fallbackFilms=[
-    {id:'SAOpIAaNLtM',seconds:10},{id:'WgIACYF8oGk',seconds:10},{id:'r36vQmqW2Jw',seconds:10},
-    {id:'FJ34NkTzWgs',seconds:10},{id:'oiwXx7m-r5c',seconds:10},{id:'bB0YHqT3JIE',seconds:10},
-    {id:'n5odygeaZ-U',seconds:10},{id:'bWrNcEATXCM',seconds:10},{id:'jLLElORRRTE',seconds:10}
-  ];
-  // Une sélection courte dont les vidéos ont été retenues pour l'intégration.
-  // Éviter le catalogue complet empêche qu'une vidéo indisponible interrompe le carrousel.
-  const approvedVideoIds=new Set(['O_INnmKTBew','ehNCiCu6S78','MaohoeduKPQ','bWrNcEATXCM','_DiKVE5EO6s','2UMR5f91wj8']);
-  // L'autoplay avec son est bloqué par les navigateurs mobiles et par plusieurs
-  // réglages desktop. On démarre donc muet pour garantir la lecture ; SON l'active sans recharger la vidéo.
-  let catalogue=[],queue=[],currentFilm,timer,isMuted=true;
+const heroVideo=document.querySelector('.video-hero video');
+if(heroVideo){
+  let isMuted=false;
   const hero=document.querySelector('.video-hero');
   const soundToggle=document.createElement('button');
-  soundToggle.className=`sound-toggle${isMuted?' is-muted':''}`;
+  soundToggle.className='sound-toggle';
   soundToggle.type='button';
-  soundToggle.textContent=isMuted?'SON':'MUET';
-  soundToggle.setAttribute('aria-label',isMuted?'Activer le son':'Couper le son');
+  soundToggle.textContent='MUET';
+  soundToggle.setAttribute('aria-label','Couper le son');
   hero.append(soundToggle);
-  const shuffle=items=>[...items].sort(()=>Math.random()-.5);
-  const refillQueue=()=>{queue=shuffle(catalogue.filter(film=>!blockedVideoIds.has(film.id)&&film.id!==currentFilm?.id));};
-  // Lecteur minimal : un iframe autonome, sans le SDK officiel ni son API JavaScript.
-  // loop+playlist sur une seule vidéo évite l'écran de fin à chaque bascule.
-  const playerUrl=(id,muted)=>`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=${muted?1:0}&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&playsinline=1&modestbranding=1&enablejsapi=1&loop=1&playlist=${id}`;
-  function load(film){
-    currentFilm=film;
-    heroFrame.src=playerUrl(film.id,isMuted);
-    // Le visuel de couverture évite tout écran d'interface YouTube entre deux films.
-    heroFrame.onload=()=>hero.classList.add('is-playing');
-    timer=setTimeout(playNext,Math.max(1,Math.min(film.seconds||10,10))*1000);
-  }
-  function playNext(){
-    clearTimeout(timer);
-    if(!queue.length)refillQueue();
-    const next=queue.pop();
-    if(next)load(next);
-  }
-  function durationInSeconds(value){
-    const parts=(value||'').trim().split(':').map(Number);
-    return parts.length===2&&parts.every(Number.isFinite)?parts[0]*60+parts[1]:10;
-  }
   soundToggle.addEventListener('click',()=>{
     isMuted=!isMuted;
     soundToggle.textContent=isMuted?'SON':'MUET';
     soundToggle.classList.toggle('is-muted',isMuted);
     soundToggle.setAttribute('aria-label',isMuted?'Activer le son':'Couper le son');
-    // Le lecteur reste en cours : aucune source n'est rechargée, notamment sur mobile.
-    heroFrame.contentWindow?.postMessage(JSON.stringify({event:'command',func:isMuted?'mute':'unMute',args:[]}),'*');
+    heroVideo.muted=isMuted;
+    heroVideo.play().catch(()=>{});
   });
-  // Le catalogue est lu dans le HTML déjà présent, aucun script externe n'est requis.
-  fetch('films.html').then(response=>response.ok?response.text():Promise.reject()).then(markup=>{
-    const page=new DOMParser().parseFromString(markup,'text/html'),seen=new Set();
-    catalogue=[...page.querySelectorAll('[data-video]')].map(card=>({id:card.dataset.video,seconds:durationInSeconds(card.querySelector('.film-dur')?.textContent)})).filter(film=>film.id&&approvedVideoIds.has(film.id)&&!seen.has(film.id)&&seen.add(film.id)&&!blockedVideoIds.has(film.id));
-    if(!catalogue.length)catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));
-    refillQueue();playNext();
-  }).catch(()=>{catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));refillQueue();playNext();});
+  heroVideo.muted=false;
+  heroVideo.play().catch(()=>{});
 }
 
 const ARCHIVE_ROWS_BP=900;

@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>JAW LEGACY</title>
-  <link rel="preconnect" href="https://www.youtube-nocookie.com">
-<link rel="dns-prefetch" href="https://www.youtube-nocookie.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,7 +11,7 @@
   <link rel="alternate icon" href="assets/favicon/favicon.ico">
   <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css?v=30">
-  <link rel="stylesheet" href="hero.css?v=30">
+  <link rel="stylesheet" href="hero.css?v=32">
   <link rel="stylesheet" href="home-link.css?v=30">
 <link rel="stylesheet" href="responsive.css?v=31">
 </head>
@@ -24,9 +22,11 @@
     <nav></nav>
   </header>
   <main>
-    <section class="video-hero" aria-label="JAW Archive — sélection de films">
-      <iframe id="jaw-player" title="JAW Archive — sélection de vidéos" allow="autoplay; encrypted-media" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-      <p class="video-caption">JAW ARCHIVE — SÉLECTION DE FILMS</p>
+    <section class="video-hero" aria-label="JAW Archive — film de présentation">
+      <video class="hero-video" autoplay loop playsinline preload="auto" aria-label="Film de présentation JAW Legacy">
+        <source src="assets/videos/home.mp4" type="video/mp4">
+      </video>
+      <p class="video-caption">JAW ARCHIVE</p>
     </section>
     <section class="image-stream">
       <figure><a class="open-image" href="films.html?video=O_INnmKTBew"><img src="assets/films/O_INnmKTBew.jpg" alt="Air Austral — Publicité La Réunion" loading="lazy"></a><figcaption>Air Austral — Publicité La Réunion · 0:51</figcaption></figure>
@@ -48,6 +48,6 @@
     </section>
   </main>
   <footer><p>© JAW LEGACY 2026 — Tous droits réservés</p><p>En mémoire de Jacques-Antoine Wicky</p><a class="legal-link" href="legal.html" style="margin-left:auto;color:inherit;font:inherit;text-decoration:none">Mentions légales</a></footer>
-  <script src="script.js?v=31"></script>
+  <script src="script.js?v=32"></script>
 </body>
 </html>

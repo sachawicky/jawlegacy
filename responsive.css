@@ -98,7 +98,7 @@ body:has(.contact-page)>header,body:has(.contact-page)>footer { flex-shrink:0; }
  .design-heading { flex-wrap:wrap; gap:12px; }
 }
 body:has(.video-hero) .video-hero { height:100svh; min-height:360px; }
-.video-hero iframe { position:absolute; left:50%; top:50%; width:max(100%,177.78svh); height:max(100%,56.25vw); max-width:none; transform:translate(-50%,-50%); }
+.video-hero video { position:absolute; left:50%; top:50%; width:max(100%,177.78svh); height:max(100%,56.25vw); max-width:none; transform:translate(-50%,-50%); }
 .video-caption { max-width:calc(100% - 130px); line-height:1.5; }
 .sound-toggle { min-width:64px; min-height:44px; bottom:14px; }
 @media(max-width:1099px) {
