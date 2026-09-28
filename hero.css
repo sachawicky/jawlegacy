@@ -1,0 +1,12 @@
+body:has(.video-hero) header{position:absolute;z-index:5;top:0;left:0;width:100%;background:transparent;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.75)}
+body:has(.video-hero) .video-hero{height:100svh;min-height:680px}
+.video-hero{position:relative;overflow:hidden;background:#101010}
+.video-hero iframe{display:block;width:100%;height:100%;border:0;pointer-events:none;filter:contrast(1.08) brightness(.9)}
+.video-hero:before{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:center/cover no-repeat url('https://i.ytimg.com/vi/SAOpIAaNLtM/maxresdefault.jpg');transition:opacity .45s ease,visibility .45s ease}
+.video-hero.is-playing:before{opacity:0;visibility:hidden}
+.video-hero:after{content:"";position:absolute;z-index:2;inset:0;pointer-events:none;opacity:.15;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 220 220' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");mix-blend-mode:screen}
+.video-caption,.sound-toggle{position:absolute;z-index:4;bottom:28px;margin:0;color:#fff;font:inherit;font-size:12px;letter-spacing:.03em;text-shadow:0 1px 8px rgba(0,0,0,.75)}
+.video-caption{left:2.95vw}
+.sound-toggle{right:2.95vw;display:inline-flex;align-items:center;gap:7px;padding:0;border:0;background:transparent;cursor:pointer}.sound-toggle:after{width:13px;height:13px;content:"";background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6.1h3L8.5 3v10L5 9.9H2z'/%3E%3Cpath d='M11 5.4a3.5 3.5 0 0 1 0 5.2'/%3E%3C/svg%3E")}.sound-toggle.is-muted:after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6.1h3L8.5 3v10L5 9.9H2z'/%3E%3Cpath d='m11.2 5.2 3 5.6'/%3E%3Cpath d='m14.2 5.2-3 5.6'/%3E%3C/svg%3E")}
+.sound-toggle:focus-visible{outline:1px solid #fff;outline-offset:5px}
+@keyframes reveal-video{to{opacity:0;visibility:hidden}}

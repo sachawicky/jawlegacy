@@ -1,0 +1,10 @@
+.note-copy a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.note-copy a:hover,
+.note-copy a:focus-visible {
+  text-decoration-thickness: 2px;
+}

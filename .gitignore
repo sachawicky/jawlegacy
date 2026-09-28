@@ -1,0 +1,8 @@
+.DS_Store
+Thumbs.db
+*.log
+
+# Miroir d'un site tiers (contenu externe, hors perimetre du projet)
+maboiteamoi/
+.netlify/
+node_modules/

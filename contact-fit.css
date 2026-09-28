@@ -1,0 +1,37 @@
+@media (min-width: 900px) {
+  html:has(.contact-page),
+  body:has(.contact-page) {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body:has(.contact-page) {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: 93px minmax(0, 1fr) 54px;
+  }
+
+  .contact-page {
+    box-sizing: border-box;
+    min-height: 0;
+    padding: clamp(28px, 4.5vh, 62px) 0 8px;
+    overflow: hidden;
+  }
+
+  .contact-details { margin-bottom: clamp(38px, 5.2vh, 64px); }
+  .contact-details p { margin-bottom: 10px; }
+  .contact-intro { margin-bottom: clamp(18px, 2.3vh, 28px); }
+  .form-heading { margin-bottom: 10px; }
+  .contact-form label { margin-bottom: 7px; }
+  .contact-form input,
+  .contact-form textarea { padding: 8px 12px; }
+  .contact-form input { height: 39px; }
+  .contact-form textarea { height: 68px; }
+  .contact-form button { padding: 11px 25px; font-size: 12px; }
+
+  body:has(.contact-page) footer {
+    min-height: 54px;
+    margin: 0 2.95vw;
+    font-size: 10px;
+  }
+}
