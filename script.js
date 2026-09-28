@@ -241,11 +241,6 @@ if(homeCopy){
     <p>JAW LEGACY est une archive en construction. Si vous avez travaillé avec Jacques-Antoine Wicky et souhaitez être crédité pour l’une des réalisations présentées, ou si vous possédez des photographies, films, documents ou autres éléments susceptibles de compléter ce fonds, vous pouvez contacter sa famille depuis la section <a href="contact.html">Contact</a>.</p>`;
 }
 
-document.querySelectorAll('a[href="mailto:bonjour@jawlegacy.com"]').forEach(link=>{
-  link.href='mailto:contact@jawlegacy.com';
-  link.textContent='contact@jawlegacy.com';
-});
-
 const homeFilms=[
   ['O_INnmKTBew','Air Austral — Publicité La Réunion · 0:51'],
   ['ehNCiCu6S78','Galawabeach — Publicité La Réunion · 0:31'],

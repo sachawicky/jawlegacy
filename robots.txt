@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jawlegacy.com/sitemap.xml
+Sitemap: https://jawlegacy.fr/sitemap.xml
