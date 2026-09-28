@@ -36,8 +36,9 @@ if(heroFrame){
   // Une sélection courte dont les vidéos ont été retenues pour l'intégration.
   // Éviter le catalogue complet empêche qu'une vidéo indisponible interrompe le carrousel.
   const approvedVideoIds=new Set(['O_INnmKTBew','ehNCiCu6S78','MaohoeduKPQ','bWrNcEATXCM','_DiKVE5EO6s','2UMR5f91wj8']);
-  const startsMutedOnMobile=matchMedia('(pointer:coarse)').matches;
-  let catalogue=[],queue=[],currentFilm,timer,isMuted=startsMutedOnMobile;
+  // L'autoplay avec son est bloqué par les navigateurs mobiles et par plusieurs
+  // réglages desktop. On démarre donc muet pour garantir la lecture ; SON l'active sans recharger la vidéo.
+  let catalogue=[],queue=[],currentFilm,timer,isMuted=true;
   const hero=document.querySelector('.video-hero');
   const soundToggle=document.createElement('button');
   soundToggle.className=`sound-toggle${isMuted?' is-muted':''}`;
