@@ -10,3 +10,7 @@ body:has(.video-hero) .video-hero{height:100svh;min-height:680px}
 .sound-toggle{right:2.95vw;display:inline-flex;align-items:center;gap:7px;padding:0;border:0;background:transparent;cursor:pointer}.sound-toggle:after{width:13px;height:13px;content:"";background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6.1h3L8.5 3v10L5 9.9H2z'/%3E%3Cpath d='M11 5.4a3.5 3.5 0 0 1 0 5.2'/%3E%3C/svg%3E")}.sound-toggle.is-muted:after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='1.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6.1h3L8.5 3v10L5 9.9H2z'/%3E%3Cpath d='m11.2 5.2 3 5.6'/%3E%3Cpath d='m14.2 5.2-3 5.6'/%3E%3C/svg%3E")}
 .sound-toggle:focus-visible{outline:1px solid #fff;outline-offset:5px}
 @keyframes reveal-video{to{opacity:0;visibility:hidden}}
+
+/* Vignette locale en fond : évite le flash noir avant que l'iframe ne réponde. */
+.video-hero{background:#101010 url("assets/films/O_INnmKTBew.jpg") center/cover no-repeat}
+.video-hero.is-playing{background-image:none}

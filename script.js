@@ -24,7 +24,7 @@ if(heroFrame){
     {id:'FJ34NkTzWgs',seconds:10},{id:'oiwXx7m-r5c',seconds:10},{id:'bB0YHqT3JIE',seconds:10},
     {id:'n5odygeaZ-U',seconds:10},{id:'bWrNcEATXCM',seconds:10},{id:'jLLElORRRTE',seconds:10}
   ];
-  let catalogue=[],queue=[],currentFilm,timer,player,isMuted=true,playerReady=false,useNativePlayer=false,apiWatchdog;
+  let catalogue=[],queue=[],currentFilm,timer,isMuted=true;
   const hero=document.querySelector('.video-hero');
   const soundToggle=document.createElement('button');
   soundToggle.className='sound-toggle is-muted';
@@ -34,68 +34,40 @@ if(heroFrame){
   hero.append(soundToggle);
   const shuffle=items=>[...items].sort(()=>Math.random()-.5);
   const refillQueue=()=>{queue=shuffle(catalogue.filter(film=>!blockedVideoIds.has(film.id)&&film.id!==currentFilm?.id));};
-  const nativePlayerUrl=id=>`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=${isMuted?1:0}&controls=0&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&enablejsapi=1&origin=${encodeURIComponent(location.origin)}`;
+  // Lecteur minimal : un iframe autonome, sans le SDK officiel ni son API JavaScript.
+  // loop+playlist sur une seule vidéo évite l'écran de fin à chaque bascule.
+  const playerUrl=(id,muted)=>`https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=${muted?1:0}&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&playsinline=1&modestbranding=1&loop=1&playlist=${id}`;
+  function load(film){
+    currentFilm=film;
+    heroFrame.src=playerUrl(film.id,isMuted);
+    setTimeout(()=>hero.classList.add('is-playing'),900);
+    timer=setTimeout(playNext,Math.max(1,Math.min(film.seconds||10,10))*1000);
+  }
   function playNext(){
     clearTimeout(timer);
     if(!queue.length)refillQueue();
     const next=queue.pop();
-    if(!next)return;
-    currentFilm=next;
-    if(useNativePlayer){
-      heroFrame.src=nativePlayerUrl(next.id);
-      // Le lecteur simplifié reste disponible si l’API YouTube est bloquée par un navigateur.
-      setTimeout(()=>hero.classList.add('is-playing'),900);
-    }else player.loadVideoById({videoId:next.id,startSeconds:0});
-    timer=setTimeout(playNext,Math.max(1,Math.min(next.seconds||10,10))*1000);
-  }
-  function excludeCurrent(){
-    if(!currentFilm)return;
-    blockedVideoIds.add(currentFilm.id);
-    localStorage.setItem('jaw-blocked-youtube-videos',JSON.stringify([...blockedVideoIds]));
-    queue=queue.filter(film=>film.id!==currentFilm.id);
-    playNext();
+    if(next)load(next);
   }
   function durationInSeconds(value){
     const parts=(value||'').trim().split(':').map(Number);
     return parts.length===2&&parts.every(Number.isFinite)?parts[0]*60+parts[1]:10;
   }
-  function activateNativePlayer(){
-    if(playerReady||useNativePlayer)return;
-    useNativePlayer=true;
-    catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));
-    refillQueue();
-    playNext();
-  }
-  function initialisePlayer(){
-    if(useNativePlayer)return;
-    player=new YT.Player('jaw-player',{playerVars:{autoplay:1,controls:0,disablekb:1,fs:0,iv_load_policy:3,modestbranding:1,mute:1,playsinline:1,rel:0,origin:location.origin},events:{
-      onReady:()=>{
-        playerReady=true;
-        clearTimeout(apiWatchdog);
-        fetch('films.html').then(response=>response.ok?response.text():Promise.reject()).then(markup=>{
-          const page=new DOMParser().parseFromString(markup,'text/html'),seen=new Set();
-          catalogue=[...page.querySelectorAll('[data-video]')].map(card=>({id:card.dataset.video,seconds:durationInSeconds(card.querySelector('.film-dur')?.textContent)})).filter(film=>film.id&&!seen.has(film.id)&&seen.add(film.id)&&!blockedVideoIds.has(film.id));
-          if(!catalogue.length)catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));
-          refillQueue();playNext();
-        }).catch(()=>{catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));refillQueue();playNext();});
-      },
-      onStateChange:event=>{if(event.data===YT.PlayerState.PLAYING)hero.classList.add('is-playing');if(event.data===YT.PlayerState.ENDED)playNext();},
-      // L’API officielle renvoie les erreurs de lecture (dont restriction territoriale) : la vidéo est mémorisée et sautée immédiatement.
-      onError:excludeCurrent
-    }});
-  }
-  soundToggle.addEventListener('click',()=>{isMuted=!isMuted;soundToggle.textContent=isMuted?'SON':'MUET';soundToggle.classList.toggle('is-muted',isMuted);soundToggle.setAttribute('aria-label',isMuted?'Activer le son':'Couper le son');if(player){isMuted?player.mute():player.unMute();}});
-  apiWatchdog=setTimeout(activateNativePlayer,4000);
-  if(window.YT?.Player)initialisePlayer();
-  else{
-    const api=document.createElement('script');
-    api.src='https://www.youtube.com/iframe_api';
-    api.async=true;
-    api.onerror=activateNativePlayer;
-    const previousReady=window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady=()=>{previousReady?.();initialisePlayer();};
-    document.head.append(api);
-  }
+  soundToggle.addEventListener('click',()=>{
+    isMuted=!isMuted;
+    soundToggle.textContent=isMuted?'SON':'MUET';
+    soundToggle.classList.toggle('is-muted',isMuted);
+    soundToggle.setAttribute('aria-label',isMuted?'Activer le son':'Couper le son');
+    // Sans le SDK on ne peut pas piloter le volume : on recharge la source avec le nouvel état.
+    if(currentFilm)load(currentFilm);
+  });
+  // Le catalogue est lu dans le HTML déjà présent, aucun script externe n'est requis.
+  fetch('films.html').then(response=>response.ok?response.text():Promise.reject()).then(markup=>{
+    const page=new DOMParser().parseFromString(markup,'text/html'),seen=new Set();
+    catalogue=[...page.querySelectorAll('[data-video]')].map(card=>({id:card.dataset.video,seconds:durationInSeconds(card.querySelector('.film-dur')?.textContent)})).filter(film=>film.id&&!seen.has(film.id)&&seen.add(film.id)&&!blockedVideoIds.has(film.id));
+    if(!catalogue.length)catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));
+    refillQueue();playNext();
+  }).catch(()=>{catalogue=fallbackFilms.filter(film=>!blockedVideoIds.has(film.id));refillQueue();playNext();});
 }
 
 const ARCHIVE_ROWS_BP=900;
@@ -258,7 +230,7 @@ document.querySelectorAll('.image-stream figure').forEach((figure,index)=>{
   const caption=figure.querySelector('figcaption');
   if(link)link.href=`films.html?video=${videoId}`;
   if(image){
-    image.src=`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+    image.src=`assets/films/${videoId}.jpg`;
     image.alt=title;
   }
   if(caption)caption.textContent=title;
