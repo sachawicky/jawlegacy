@@ -11,6 +11,7 @@ const nav=document.querySelector('nav');
 if(nav){const current=location.pathname.split('/').pop()||'index.html';const items=[['wicky.html','WICKY'],['films.html','FILMS'],['dessins.html','DESIGNS'],['archives.html','ARCHIVES'],['memoire.html','MÉMOIRE'],['contact.html','CONTACT']];nav.innerHTML=items.map(([href,label])=>`<a href="${href}"${current===href?' class="is-current" aria-current="page"':''}>${label}</a>`).join('');}
 
 const menuToggle=document.querySelector('.menu-toggle');
+nav?.querySelectorAll('a').forEach((link,index)=>link.style.setProperty('--nav-index',index));
 if(menuToggle && nav){
   const scrim=document.createElement('div');
   scrim.className='nav-scrim';
@@ -42,7 +43,15 @@ if(heroVideo){
     heroVideo.play().catch(()=>{});
   });
   heroVideo.muted=false;
-  heroVideo.play().catch(()=>{});
+  heroVideo.play().catch(()=>{
+    // Mobile browsers require muted playback until the visitor activates sound.
+    isMuted=true;
+    heroVideo.muted=true;
+    soundToggle.textContent='SON';
+    soundToggle.classList.add('is-muted');
+    soundToggle.setAttribute('aria-label','Activer le son');
+    heroVideo.play().catch(()=>{});
+  });
 }
 
 const ARCHIVE_ROWS_BP=900;
