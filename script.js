@@ -263,3 +263,43 @@ document.querySelectorAll('.image-stream figure').forEach((figure,index)=>{
   }
   if(caption)caption.textContent=title;
 });
+
+// Formulaire de contact : envoi sans quitter la page, avec repli mailto si l'hébergement n'accepte pas le POST.
+const contactForm=document.querySelector('.contact-form');
+if(contactForm){
+  const status=contactForm.querySelector('.form-status');
+  const send=message=>{
+    if(!status)return;
+    status.textContent=message;
+    status.className='form-status is-'+(/^Message envoyé/.test(message)?'ok':'error');
+  };
+  contactForm.addEventListener('submit',event=>{
+    event.preventDefault();
+    if(!contactForm.checkValidity()){
+      contactForm.reportValidity();
+      return;
+    }
+    if(contactForm.elements['bot-field'].value)return;
+    const data=new FormData(contactForm);
+    send('Envoi en cours…');
+    fetch(contactForm.getAttribute('action')||location.pathname,{
+      method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams(data).toString()
+    }).then(response=>{
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      contactForm.reset();
+      send('Message envoyé. Nous vous répondrons à l’adresse indiquée.');
+    }).catch(()=>{
+      // L'hébergeur refuse le POST (site 100 % statique) : on ne perd pas le message, on ouvre le client mail.
+      const first=contactForm.elements['first-name'].value.trim();
+      const last=contactForm.elements['last-name'].value.trim();
+      const email=contactForm.elements['email'].value.trim();
+      const message=contactForm.elements['message'].value.trim();
+      const body=`${message}\n\n—\n${first} ${last}\n${email}`;
+      const mailto=`mailto:contact@jawlegacy.fr?subject=${encodeURIComponent('Message depuis jawlegacy.fr')}&body=${encodeURIComponent(body)}`;
+      location.href=mailto;
+      send('Votre logiciel de messagerie doit s’ouvrir pour finaliser l’envoi.');
+    });
+  });
+}
